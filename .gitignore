@@ -1,0 +1,58 @@
+# ==========================================
+# CertiAlert — Git Ignore Rules
+# ==========================================
+
+# Dependencies
+node_modules/
+*/node_modules/
+.pnp
+.pnp.js
+
+# Environment Variables & Secrets (IMPORTANT)
+.env
+.env.local
+.env.development.local
+.env.test.local
+.env.production.local
+*.env
+!*.env.example
+
+# Production Builds & Bundles
+dist/
+dist-ssr/
+build/
+out/
+.vite/
+*.local
+
+# Logs
+logs/
+*.log
+npm-debug.log*
+yarn-debug.log*
+yarn-error.log*
+pnpm-debug.log*
+lerna-debug.log*
+
+# Diagnostic & Testing
+coverage/
+.nyc_output/
+*.lcov
+
+# Editor & IDE Directories
+.vscode/*
+!.vscode/extensions.json
+.idea/
+*.suo
+*.ntvs*
+*.njsproj
+*.sln
+*.sw?
+.DS_Store
+Thumbs.db
+Desktop.ini
+
+# Temporary Scripts in Root
+/*.js
+writeGitignore.cjs
+scratch/

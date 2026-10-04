@@ -1,0 +1,18 @@
+# Backend Dependencies
+node_modules/
+
+# Secrets & Environment Configurations
+.env
+.env.local
+.env.*.local
+*.env
+!*.env.example
+
+# Logs & Run-time Files
+logs/
+*.log
+npm-debug.log*
+
+# Diagnostics
+coverage/
+.nyc_output/
