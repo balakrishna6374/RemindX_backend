@@ -11,6 +11,9 @@ const notificationSchema = new mongoose.Schema(
     emailSent: { type: Boolean, default: false },
     emailSentAt: { type: Date },
     emailError: { type: String },
+    telegramSent: { type: Boolean, default: false },
+    telegramSentAt: { type: Date },
+    telegramError: { type: String },
     createdAt: { type: Date, default: Date.now, index: true },
   }
 );

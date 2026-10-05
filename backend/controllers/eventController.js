@@ -1,7 +1,9 @@
 import { Event } from "../models/Event.js";
+import { User } from "../models/User.js";
 import { Notification } from "../models/Notification.js";
 import { sendSuccess, sendError } from "../utils/responseUtils.js";
-import { getEventStatus, getDaysRemaining } from "../utils/dateUtils.js";
+import { getEventStatus, getDaysRemaining, formatDateDisplay } from "../utils/dateUtils.js";
+import { createNotification } from "../services/notificationService.js";
 
 export const getEvents = async (req, res, next) => {
   try {
@@ -45,7 +47,7 @@ export const getEventById = async (req, res, next) => {
 
 export const createEvent = async (req, res, next) => {
   try {
-    const { title, description, eventDate, category, priority } = req.body;
+    const { title, description, eventDate, category, priority, autoNotify = true } = req.body;
     const parsedDate = new Date(eventDate);
     const event = await Event.create({
       userId: req.user._id,
@@ -55,6 +57,7 @@ export const createEvent = async (req, res, next) => {
       category: category || "OTHER",
       priority: priority || "MEDIUM",
       status: getEventStatus(parsedDate),
+      autoNotify: autoNotify !== false,
     });
     return sendSuccess(res, 201, "Event created", {
       ...event.toObject(),
@@ -68,11 +71,12 @@ export const updateEvent = async (req, res, next) => {
   try {
     const event = await Event.findOne({ _id: req.params.id, userId: req.user._id });
     if (!event) return sendError(res, 404, "Event not found");
-    const { title, description, eventDate, category, priority } = req.body;
+    const { title, description, eventDate, category, priority, autoNotify } = req.body;
     if (title !== undefined) event.title = title.trim();
     if (description !== undefined) event.description = description.trim();
     if (category !== undefined) event.category = category;
     if (priority !== undefined) event.priority = priority;
+    if (autoNotify !== undefined) event.autoNotify = Boolean(autoNotify);
     if (eventDate !== undefined) {
       event.eventDate = new Date(eventDate);
       event.status = getEventStatus(event.eventDate);
@@ -108,4 +112,61 @@ export const getEventSummary = async (req, res, next) => {
     });
     return sendSuccess(res, 200, "Event summary", summary);
   } catch (error) { next(error); }
+};
+
+/**
+ * Manually trigger an instant multi-channel alert (Telegram + Email) for a specific document
+ */
+export const dispatchManualEventAlert = async (req, res, next) => {
+  try {
+    const { id } = req.params;
+    const event = await Event.findById(id).populate("userId");
+
+    if (!event) return sendError(res, 404, "Document not found");
+
+    // Allow owner or admin
+    if (req.user.role !== "admin" && event.userId._id.toString() !== req.user._id.toString()) {
+      return sendError(res, 403, "Unauthorized to dispatch alert for this document");
+    }
+
+    const user = event.userId;
+    const days = getDaysRemaining(event.eventDate);
+    const dateStr = formatDateDisplay(event.eventDate);
+
+    let type = "REMINDER";
+    let title = `[Instant Alert] ${event.title} Reminder`;
+    let message = `Manual dispatch: Your ${event.title} (${event.category}) expiry date is ${dateStr}.`;
+
+    if (days === 0) {
+      type = "DUE_TODAY";
+      title = `[Instant Alert] ${event.title} Expires Today`;
+      message = `Manual dispatch: Your ${event.title} (${event.category}) reaches its expiry deadline today (${dateStr}).`;
+    } else if (days < 0) {
+      type = "EXPIRED";
+      title = `[Instant Alert] ${event.title} Has Expired`;
+      message = `Manual dispatch: Your ${event.title} (${event.category}) expired on ${dateStr}.`;
+    }
+
+    const notifResult = await createNotification({
+      userId: user._id,
+      eventId: event._id,
+      type,
+      title,
+      message,
+      user,
+      event,
+      force: true,
+    });
+
+    event.lastManualDispatchedAt = new Date();
+    await event.save();
+
+    return sendSuccess(res, 200, `Instant alert dispatched for "${event.title}"!`, {
+      eventTitle: event.title,
+      dispatchedAt: event.lastManualDispatchedAt,
+      notification: notifResult.notification,
+    });
+  } catch (error) {
+    next(error);
+  }
 };

@@ -4,10 +4,10 @@ import { authService } from '../services/authService';
 const AuthContext = createContext(null);
 
 export const AuthProvider = ({ children }) => {
-  const [token, setToken] = useState(() => localStorage.getItem('certialert_token'));
+  const [token, setToken] = useState(() => localStorage.getItem('remindx_token'));
   const [user, setUser] = useState(() => {
     try {
-      const u = localStorage.getItem('certialert_user');
+      const u = localStorage.getItem('remindx_user');
       return u ? JSON.parse(u) : null;
     } catch {
       return null;
@@ -17,8 +17,8 @@ export const AuthProvider = ({ children }) => {
 
   const login = async (email, password) => {
     const data = await authService.login(email, password);
-    localStorage.setItem('certialert_token', data.token);
-    localStorage.setItem('certialert_user', JSON.stringify(data.user));
+    localStorage.setItem('remindx_token', data.token);
+    localStorage.setItem('remindx_user', JSON.stringify(data.user));
     setToken(data.token);
     setUser(data.user);
     return data.user;
@@ -26,16 +26,16 @@ export const AuthProvider = ({ children }) => {
 
   const register = async (userData) => {
     const data = await authService.register(userData);
-    localStorage.setItem('certialert_token', data.token);
-    localStorage.setItem('certialert_user', JSON.stringify(data.user));
+    localStorage.setItem('remindx_token', data.token);
+    localStorage.setItem('remindx_user', JSON.stringify(data.user));
     setToken(data.token);
     setUser(data.user);
     return data.user;
   };
 
   const logout = () => {
-    localStorage.removeItem('certialert_token');
-    localStorage.removeItem('certialert_user');
+    localStorage.removeItem('remindx_token');
+    localStorage.removeItem('remindx_user');
     setToken(null);
     setUser(null);
   };

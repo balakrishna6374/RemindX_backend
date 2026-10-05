@@ -10,6 +10,7 @@ import userRoutes from './routes/userRoutes.js';
 import eventRoutes from './routes/eventRoutes.js';
 import notificationRoutes from './routes/notificationRoutes.js';
 import adminRoutes from './routes/adminRoutes.js';
+import telegramRoutes from './routes/telegramRoutes.js';
 
 const app = express();
 
@@ -51,7 +52,7 @@ app.use('/api', apiLimiter);
 app.get('/api/health', (req, res) => {
   res.status(200).json({
     success: true,
-    message: 'CertiAlert API is operational',
+    message: 'RemindX API is operational',
     timestamp: new Date().toISOString(),
     environment: env.NODE_ENV,
   });
@@ -63,6 +64,7 @@ app.use('/api/users', userRoutes);
 app.use('/api/events', eventRoutes);
 app.use('/api/notifications', notificationRoutes);
 app.use('/api/admin', adminRoutes);
+app.use('/api/telegram', telegramRoutes);
 
 // Catch 404s
 app.use(notFoundHandler);

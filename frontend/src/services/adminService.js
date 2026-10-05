@@ -32,4 +32,8 @@ export const adminService = {
     const res = await api.post('/admin/trigger-reminders');
     return res.data;
   },
+  dispatchAlert: async (eventId) => {
+    const res = await api.post(`/events/${eventId}/dispatch`);
+    return res.data;
+  },
 };

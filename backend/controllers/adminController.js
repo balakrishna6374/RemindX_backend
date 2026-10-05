@@ -115,7 +115,7 @@ export const getUserDetails = async (req, res, next) => {
 
 export const updateUser = async (req, res, next) => {
   try {
-    const { name, isActive, role } = req.body;
+    const { name, isActive, role, password } = req.body;
     const user = await User.findById(req.params.id);
     if (!user) return sendError(res, 404, "User not found");
     if (user._id.toString() === req.user._id.toString()) {
@@ -125,8 +125,9 @@ export const updateUser = async (req, res, next) => {
     if (name !== undefined) user.name = name.trim();
     if (isActive !== undefined) user.isActive = isActive;
     if (role !== undefined) user.role = role;
+    if (password) user.password = password;
     await user.save();
-    return sendSuccess(res, 200, "User updated", user);
+    return sendSuccess(res, 200, "User updated successfully", user);
   } catch (error) { next(error); }
 };
 

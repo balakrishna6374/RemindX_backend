@@ -8,6 +8,7 @@ import { Dashboard } from './pages/Dashboard';
 import { Users } from './pages/Users';
 import { Events } from './pages/Events';
 import { Notifications } from './pages/Notifications';
+import { Settings } from './pages/Settings';
 import { UserPortal } from './pages/user/UserPortal';
 import { NotFound } from './pages/NotFound';
 
@@ -72,6 +73,7 @@ export const App = () => {
               <Route path="users" element={<Users />} />
               <Route path="events" element={<Events />} />
               <Route path="notifications" element={<Notifications />} />
+              <Route path="settings" element={<Settings />} />
             </Route>
 
             <Route path="/home" element={<RootRedirect />} />

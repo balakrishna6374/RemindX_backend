@@ -1,34 +1,35 @@
 <!doctype html>
-<html lang="en" class="h-full dark">
+<html lang="en" class="h-full">
   <head>
     <meta charset="UTF-8" />
-    <link rel="icon" type="image/svg+xml" href="/vite.svg" />
+    <link rel="icon" type="image/png" href="/logo.png" />
     <meta name="viewport" content="width=device-width, initial-scale=1.0" />
-    <title>CertiAlert — Smart Expiry & Reminder Portal</title>
-    <script src="https://cdn.tailwindcss.com"></script>
+    <title>RemindX — Smart Expiry & Renewal Management</title>
+    
+    <!-- Google Fonts -->
+    <link rel="preconnect" href="https://fonts.googleapis.com" />
+    <link rel="preconnect" href="https://fonts.gstatic.com" crossorigin />
+    <link href="https://fonts.googleapis.com/css2?family=Plus+Jakarta+Sans:wght@400;500;600;700;800;900&family=JetBrains+Mono:wght@400;500;600&display=swap" rel="stylesheet" />
+
+    <!-- Synchronous early theme script (Default: light) -->
     <script>
-      tailwind.config = {
-        darkMode: 'class',
-        theme: {
-          extend: {
-            colors: {
-              brand: {
-                50: '#f0f9ff',
-                100: '#e0f2fe',
-                500: '#0ea5e9',
-                600: '#0284c7',
-                700: '#0369a1',
-                900: '#0c4a6e',
-              }
-            }
+      (function() {
+        try {
+          var saved = localStorage.getItem('remindx_theme');
+          var isDark = (saved === 'dark');
+          if (isDark) {
+            document.documentElement.classList.add('dark');
+            document.documentElement.classList.remove('light');
+          } else {
+            document.documentElement.classList.remove('dark');
+            document.documentElement.classList.add('light');
           }
-        }
-      }
+        } catch (e) {}
+      })();
     </script>
   </head>
-  <body class="h-full font-sans antialiased bg-slate-50 text-slate-900 dark:bg-slate-950 dark:text-slate-100 transition-colors duration-200">
+  <body class="h-full antialiased bg-slate-50 text-slate-900 dark:bg-[#0B0F19] dark:text-slate-100 transition-colors duration-200">
     <div id="root" class="h-full"></div>
     <script type="module" src="/src/main.jsx"></script>
   </body>
 </html>
-

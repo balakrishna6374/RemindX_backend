@@ -3,7 +3,7 @@ import { env } from "../config/env.js";
 
 export const sendEmail = async ({ to, subject, html, text }) => {
   console.log(`[Email Dispatch] To: ${to} | Subject: ${subject}`);
-  return { success: true, messageId: `msg-${Date.now()}@certialert.local` };
+  return { success: true, messageId: `msg-${Date.now()}@remindx.local` };
 };
 
 export const sendReminderEmail = async (params) => sendEmail({ to: params.to, subject: `Reminder: Your ${params.eventTitle} expires soon`, text: `Expires on ${params.eventDateFormatted}` });
