@@ -1,11 +1,24 @@
 import axios from 'axios';
 
+const getBaseURL = () => {
+  const envUrl = import.meta.env.VITE_API_URL;
+  if (envUrl) {
+    const trimmed = envUrl.trim().replace(/\/+$/, '');
+    return trimmed.endsWith('/api') ? trimmed : `${trimmed}/api`;
+  }
+  // Fallback in production build to live Render backend
+  if (import.meta.env.PROD) {
+    return 'https://remindx-backend.onrender.com/api';
+  }
+  return '/api';
+};
+
 const api = axios.create({
-  baseURL: '/api',
+  baseURL: getBaseURL(),
   headers: {
     'Content-Type': 'application/json',
   },
-  timeout: 15000,
+  timeout: 30000,
 });
 
 api.interceptors.request.use(
@@ -32,8 +45,12 @@ api.interceptors.response.use(
       const msg = error.response.data?.message || 'Request failed';
       return Promise.reject(new Error(msg));
     }
+    if (error.code === 'ECONNABORTED' || !error.response) {
+      return Promise.reject(new Error('Backend server is starting up or unreachable. Please retry in 10-15 seconds.'));
+    }
     return Promise.reject(error);
   }
 );
 
 export default api;
+
