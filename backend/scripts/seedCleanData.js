@@ -10,9 +10,9 @@ async function seedCleanData() {
     await connectDB();
     console.log("[Seed] Connected to MongoDB");
 
-    // 1. Remove all users except admin@certialert.com and bala@gmail.com
+    // 1. Remove all users except admin@gmail.com and bala@gmail.com
     const nonTargetUsers = await User.find({
-      email: { $nin: ["admin@certialert.com", "bala@gmail.com"] },
+      email: { $nin: ["admin@gmail.com", "bala@gmail.com"] },
     });
     const nonTargetIds = nonTargetUsers.map((u) => u._id);
 
@@ -23,23 +23,43 @@ async function seedCleanData() {
       console.log(`[Seed] Removed ${nonTargetIds.length} dummy users and associated records.`);
     }
 
-    // 2. Ensure bala@gmail.com exists
+    // 2. Ensure admin@gmail.com exists
+    let admin = await User.findOne({ email: "admin@gmail.com" });
+    if (!admin) {
+      admin = await User.create({
+        name: "Admin",
+        email: "admin@gmail.com",
+        password: "admin@123",
+        role: "admin",
+        isActive: true,
+      });
+      console.log("[Seed] Created admin: admin@gmail.com");
+    } else {
+      admin.name = "Admin";
+      admin.password = "admin@123";
+      admin.role = "admin";
+      await admin.save();
+      console.log("[Seed] Admin admin@gmail.com updated.");
+    }
+
+    // 3. Ensure bala@gmail.com exists
     let bala = await User.findOne({ email: "bala@gmail.com" });
     if (!bala) {
-      const hashedPassword = await bcrypt.hash("Bala@123456", 12);
       bala = await User.create({
         name: "Balakrishnan S",
         email: "bala@gmail.com",
-        password: hashedPassword,
+        password: "Bala@123456",
         role: "user",
         isActive: true,
       });
       console.log("[Seed] Created user: bala@gmail.com");
     } else {
-      console.log("[Seed] User bala@gmail.com found.");
+      bala.password = "Bala@123456";
+      await bala.save();
+      console.log("[Seed] User bala@gmail.com password reset correctly.");
     }
 
-    // 3. Clear events for bala@gmail.com and re-seed clean realistic certificates
+    // 4. Clear events for bala@gmail.com and re-seed clean realistic certificates
     await Event.deleteMany({ userId: bala._id });
     await Notification.deleteMany({ userId: bala._id });
 

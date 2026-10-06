@@ -40,6 +40,22 @@ export const userService = {
     const res = await api.patch('/notifications/read-all');
     return res.data;
   },
+  dispatchManualAlert: async (eventId) => {
+    const res = await api.post(`/events/${eventId}/dispatch`);
+    return res.data;
+  },
+  triggerManualScan: async () => {
+    const res = await api.post('/notifications/manual-scan');
+    return res.data;
+  },
+  getNotificationSettings: async () => {
+    const res = await api.get('/notifications/settings');
+    return res.data;
+  },
+  updateNotificationSettings: async (data) => {
+    const res = await api.patch('/notifications/settings', data);
+    return res.data;
+  },
 };
 
 export default userService;

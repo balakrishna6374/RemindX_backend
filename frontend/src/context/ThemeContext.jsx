@@ -2,31 +2,54 @@ import React, { createContext, useContext, useState, useEffect } from 'react';
 
 const ThemeContext = createContext(null);
 
+const applyThemeToDOM = (t) => {
+  if (typeof document === 'undefined') return;
+  const root = document.documentElement;
+  if (t === 'dark') {
+    root.classList.add('dark');
+    root.classList.remove('light');
+  } else {
+    root.classList.remove('dark');
+    root.classList.add('light');
+  }
+};
+
 export const ThemeProvider = ({ children }) => {
-  const [theme, setTheme] = useState(() => {
-    const saved = localStorage.getItem('certialert_theme');
-    if (saved === 'light' || saved === 'dark') return saved;
-    if (window.matchMedia && window.matchMedia('(prefers-color-scheme: dark)').matches) {
-      return 'dark';
+  const [theme, setThemeState] = useState(() => {
+    try {
+      const saved = localStorage.getItem('remindx_theme');
+      if (saved === 'dark' || saved === 'light') {
+        applyThemeToDOM(saved);
+        return saved;
+      }
+      // Default to Light theme
+      applyThemeToDOM('light');
+      return 'light';
+    } catch {
+      applyThemeToDOM('light');
+      return 'light';
     }
-    return 'dark'; // default to high-tech dark theme
   });
 
-  useEffect(() => {
-    const root = document.documentElement;
-    if (theme === 'dark') {
-      root.classList.add('dark');
-      root.classList.remove('light');
-    } else {
-      root.classList.remove('dark');
-      root.classList.add('light');
-    }
-    localStorage.setItem('certialert_theme', theme);
-  }, [theme]);
+  const setTheme = (newTheme) => {
+    setThemeState(newTheme);
+    applyThemeToDOM(newTheme);
+    try {
+      localStorage.setItem('remindx_theme', newTheme);
+    } catch (e) {}
+  };
 
   const toggleTheme = () => {
-    setTheme((prev) => (prev === 'dark' ? 'light' : 'dark'));
+    const nextTheme = theme === 'dark' ? 'light' : 'dark';
+    setTheme(nextTheme);
   };
+
+  useEffect(() => {
+    applyThemeToDOM(theme);
+    try {
+      localStorage.setItem('remindx_theme', theme);
+    } catch (e) {}
+  }, [theme]);
 
   return (
     <ThemeContext.Provider

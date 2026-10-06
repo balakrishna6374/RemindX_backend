@@ -12,7 +12,7 @@ export class ErrorBoundary extends Component {
   }
 
   componentDidCatch(error, errorInfo) {
-    console.error('[CertiAlert Production Error Caught]:', error, errorInfo);
+    console.error('[RemindX Production Error Caught]:', error, errorInfo);
     this.setState({ errorInfo });
   }
 

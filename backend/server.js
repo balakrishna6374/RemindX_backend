@@ -17,7 +17,7 @@ const startServer = async () => {
     // 3. Start HTTP Server
     server = app.listen(env.PORT, () => {
       console.log(`\n=================================================`);
-      console.log(`  CertiAlert Backend API running on port ${env.PORT}`);
+      console.log(`  RemindX Backend API running on port ${env.PORT}`);
       console.log(`  Environment: ${env.NODE_ENV}`);
       console.log(`  Database: ${env.MONGO_URI}`);
       console.log(`=================================================\n`);

@@ -10,7 +10,7 @@ const api = axios.create({
 
 api.interceptors.request.use(
   (config) => {
-    const token = localStorage.getItem('certialert_token') || localStorage.getItem('certialert_admin_token');
+    const token = localStorage.getItem('remindx_token') || localStorage.getItem('remindx_admin_token');
     if (token) {
       config.headers.Authorization = `Bearer ${token}`;
     }
@@ -24,10 +24,10 @@ api.interceptors.response.use(
   (error) => {
     if (error.response) {
       if (error.response.status === 401) {
-        localStorage.removeItem('certialert_token');
-        localStorage.removeItem('certialert_user');
-        localStorage.removeItem('certialert_admin_token');
-        localStorage.removeItem('certialert_admin_user');
+        localStorage.removeItem('remindx_token');
+        localStorage.removeItem('remindx_user');
+        localStorage.removeItem('remindx_admin_token');
+        localStorage.removeItem('remindx_admin_user');
       }
       const msg = error.response.data?.message || 'Request failed';
       return Promise.reject(new Error(msg));

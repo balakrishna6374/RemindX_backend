@@ -8,6 +8,12 @@ const userSchema = new mongoose.Schema(
     password: { type: String, required: true, select: false },
     role: { type: String, enum: ["user", "admin"], default: "user" },
     isActive: { type: Boolean, default: true },
+    telegramChatId: { type: String, default: null },
+    telegramUsername: { type: String, default: null },
+    telegramConnectedAt: { type: Date, default: null },
+    telegramAlertsEnabled: { type: Boolean, default: true },
+    emailAlertsEnabled: { type: Boolean, default: true },
+    autoRemindersEnabled: { type: Boolean, default: true },
   },
   { timestamps: true }
 );

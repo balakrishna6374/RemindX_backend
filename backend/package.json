@@ -1,7 +1,7 @@
 {
-  "name": "certialert-backend",
+  "name": "remindx-backend",
   "version": "1.0.0",
-  "description": "CertiAlert - Smart Expiry and Reminder Management Platform Backend",
+  "description": "RemindX - Smart Expiry and Reminder Management Platform Backend",
   "type": "module",
   "main": "server.js",
   "scripts": {

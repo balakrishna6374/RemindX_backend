@@ -16,6 +16,8 @@ const eventSchema = new mongoose.Schema(
     dueNotificationSentAt: { type: Date },
     expiredNotificationSent: { type: Boolean, default: false },
     expiredNotificationSentAt: { type: Date },
+    autoNotify: { type: Boolean, default: true, index: true },
+    lastManualDispatchedAt: { type: Date },
   },
   { timestamps: true }
 );
