@@ -19,50 +19,66 @@ const app = express();
 // Trust reverse proxy (Vercel, Render, Cloudflare, Nginx)
 app.set('trust proxy', 1);
 
-// Ensure DB is connected for serverless environments (Vercel)
-app.use(async (req, res, next) => {
-  if (mongoose.connection.readyState !== 1) {
-    try {
-      await connectDB();
-    } catch (err) {
-      console.error('[Serverless] DB connection error:', err.message);
-      return res.status(500).json({ success: false, message: 'Database connection error' });
+// CORS configuration - MUST BE FIRST so all responses & preflights get CORS headers
+const corsOptions = {
+  origin: (origin, callback) => {
+    // Allow non-browser requests (Postman, curl, server-to-server)
+    if (!origin) return callback(null, true);
+
+    // Allow all vercel preview/prod deployments, localhost, and custom frontend URLs
+    if (
+      origin.includes('localhost') ||
+      origin.includes('127.0.0.1') ||
+      origin.endsWith('.vercel.app') ||
+      (env.FRONTEND_URL && origin === env.FRONTEND_URL) ||
+      env.NODE_ENV === 'development'
+    ) {
+      return callback(null, true);
     }
-  }
-  next();
-});
 
+    // Default allow for web clients
+    return callback(null, true);
+  },
+  credentials: true,
+  methods: ['GET', 'POST', 'PUT', 'PATCH', 'DELETE', 'OPTIONS'],
+  allowedHeaders: ['Content-Type', 'Authorization', 'X-Requested-With', 'Accept'],
+  exposedHeaders: ['Content-Range', 'X-Content-Range'],
+  maxAge: 86400,
+};
 
-// Security Headers
-app.use(helmet());
+app.use(cors(corsOptions));
+app.options('*', cors(corsOptions));
 
-// CORS configuration
-const allowedOrigins = [
-  env.FRONTEND_URL,
-  'http://localhost:5173',
-  'http://localhost:3000',
-  'http://127.0.0.1:5173',
-  'http://127.0.0.1:3000',
-];
-
+// Security Headers (configured to allow cross-origin API access)
 app.use(
-  cors({
-    origin: (origin, callback) => {
-      if (!origin || allowedOrigins.includes(origin) || env.NODE_ENV === 'development') {
-        callback(null, true);
-      } else {
-        callback(new Error('Not allowed by CORS policy'));
-      }
-    },
-    credentials: true,
-    methods: ['GET', 'POST', 'PUT', 'PATCH', 'DELETE', 'OPTIONS'],
-    allowedHeaders: ['Content-Type', 'Authorization'],
+  helmet({
+    crossOriginResourcePolicy: { policy: 'cross-origin' },
+    crossOriginOpenerPolicy: false,
   })
 );
 
 // Body Parsers
 app.use(express.json({ limit: '10mb' }));
 app.use(express.urlencoded({ extended: true, limit: '10mb' }));
+
+// Ensure DB is connected
+app.use(async (req, res, next) => {
+  if (req.method === 'OPTIONS') {
+    return next();
+  }
+  if (mongoose.connection.readyState !== 1) {
+    try {
+      await connectDB();
+    } catch (err) {
+      console.error('[DB Check] Database connection error:', err.message);
+      return res.status(503).json({
+        success: false,
+        message: 'Database connection in progress or unavailable. Please retry in a few moments.',
+      });
+    }
+  }
+  next();
+});
 
 // General Rate Limiting
 app.use('/api', apiLimiter);
@@ -74,6 +90,16 @@ app.get('/api/health', (req, res) => {
     message: 'RemindX API is operational',
     timestamp: new Date().toISOString(),
     environment: env.NODE_ENV,
+    dbStatus: mongoose.connection.readyState === 1 ? 'connected' : 'connecting',
+  });
+});
+
+// Root route for Render service check
+app.get('/', (req, res) => {
+  res.status(200).json({
+    success: true,
+    message: 'RemindX API Server is running',
+    docs: '/api/health',
   });
 });
 
@@ -92,4 +118,3 @@ app.use(notFoundHandler);
 app.use(errorHandler);
 
 export default app;
-
